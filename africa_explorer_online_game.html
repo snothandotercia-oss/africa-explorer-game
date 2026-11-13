@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Africa Explorer: The Ultimate Geography Challenge</title>
+<style>
+:root{--navy:#17324d;--teal:#087e8b;--gold:#f4b942;--cream:#fffaf0;--green:#2a9d65;--red:#c94c4c}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#eaf6f4,#fff5df);color:#183044}
+header{background:var(--navy);color:white;padding:24px 16px;text-align:center}
+header h1{margin:0 0 8px;font-size:clamp(1.6rem,4vw,2.5rem)}header p{margin:0}
+main{max-width:960px;margin:22px auto;padding:0 14px}
+.panel{background:white;border-radius:16px;padding:20px;margin:14px 0;box-shadow:0 5px 18px #17324d18}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button,select,input{font:inherit;border-radius:10px;padding:11px 14px;border:2px solid #c7d8dc}
+button{background:var(--teal);color:white;border:0;font-weight:bold;cursor:pointer}
+button:hover{filter:brightness(.93)}button.secondary{background:#e8eff1;color:var(--navy)}button.gold{background:var(--gold);color:#263746}
+button:disabled{opacity:.5;cursor:not-allowed}
+.pill{display:inline-block;background:#eaf5f3;color:#075b64;border-radius:30px;padding:6px 10px;font-weight:bold;font-size:.9rem}
+#question{font-size:1.35rem;font-weight:bold;margin:16px 0}
+#answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.answer{background:#eef4f5;color:#17324d;text-align:left;border:2px solid #d8e5e7}
+.answer.correct{background:#dff5e8;border:2px solid var(--green)}
+.answer.wrong{background:#fde8e6;border:2px solid var(--red)}
+#feedback{min-height:52px;margin-top:12px;font-weight:bold}
+.small{font-size:.92rem;color:#536875;line-height:1.5}
+.progress{height:12px;background:#e7eeee;border-radius:20px;overflow:hidden;margin:10px 0}
+#bar{height:100%;width:0;background:var(--gold);transition:width .25s}
+.hidden{display:none}.score{font-size:1.2rem;font-weight:bold;color:var(--teal)}
+table{border-collapse:collapse;width:100%;font-size:.94rem}td,th{padding:8px;border-bottom:1px solid #e2e9e9;text-align:left}
+footer{text-align:center;padding:24px;color:#52636d}
+@media(max-width:520px){.panel{padding:15px}button{width:100%}}
+</style>
+</head>
+<body>
+<header>
+<h1>🌍 Africa Explorer</h1>
+<p>The Ultimate Geography Challenge · Intermediate Phase</p>
+</header>
+<main>
+<section class="panel">
+<div class="row"><span class="pill">Mission-based learning</span><span class="pill">54 countries</span><span class="pill">Team or solo play</span></div>
+<h2>Welcome, Explorer!</h2>
+<p>Travel around Africa by completing four missions: locate the continent and oceans, explore countries and capitals, classify coastlines and regions, and investigate islands and the Equator.</p>
+<p class="small"><b>Learning goals:</b> identify Africa's position; name surrounding oceans; understand borders; recognise countries, capitals, landlocked and coastal countries; identify the Equator, Madagascar and Zanzibar.</p>
+<div class="row">
+<label for="player">Explorer/team name:</label><input id="player" maxlength="24" placeholder="Enter a name">
+<label for="mode">Question set:</label><select id="mode"><option value="all">All missions</option><option value="places">Position & oceans</option><option value="capitals">Countries & capitals</option><option value="coasts">Coasts, regions & Equator</option><option value="islands">Islands & borders</option></select>
+<button id="start">Start mission</button>
+</div>
+</section>
+<section class="panel hidden" id="game">
+<div class="row" style="justify-content:space-between"><span class="pill" id="mission">Mission</span><span class="score" id="score">⭐ 0 points</span></div>
+<div class="progress"><div id="bar"></div></div>
+<p class="small" id="counter"></p>
+<div id="question"></div>
+<div id="answers"></div>
+<div id="feedback" aria-live="polite"></div>
+<div class="row"><button id="next" class="gold" disabled>Next question →</button><button id="quit" class="secondary">End mission</button></div>
+</section>
+<section class="panel hidden" id="result">
+<h2>🏅 Mission report</h2><p id="summary"></p><p id="badge"></p>
+<button id="again">Play again</button>
+</section>
+<section class="panel">
+<h2>Explorer's reference desk</h2>
+<p class="small">Use this desk after playing to revise. Africa is bordered by the Mediterranean Sea to the north, the Atlantic Ocean to the west, the Indian Ocean to the east and south-east, and the Southern Ocean is sometimes shown south of Africa on world maps. The Equator crosses central Africa. Madagascar is an island country off the south-eastern coast. Zanzibar is an island group belonging to Tanzania.</p>
+<h3>All 54 African countries and commonly listed capitals</h3>
+<p class="small">Capital arrangements can be complex. South Africa has three capitals; Eswatini has administrative and royal/legislative capitals; Benin's official capital is Porto-Novo; Côte d'Ivoire's official capital is Yamoussoukro. Equatorial Guinea designated Ciudad de la Paz as its capital in 2026, although the transfer of government functions is gradual.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Country</th><th>Capital</th><th>Country</th><th>Capital</th></tr></thead><tbody id="capTable"></tbody></table></div>
+</section>
+<section class="panel small">
+<b>Teacher note:</b> This game is a revision and formative-learning resource. Learners should also use a labelled political map and globe to practise pointing out each country's location. The game does not replace map-reading practice.
+</section>
+</main>
+<footer>Learn • Explore • Discover Africa</footer>
+<script>
+const capitals=[
+["Algeria","Algiers"],["Angola","Luanda"],["Benin","Porto-Novo"],["Botswana","Gaborone"],["Burkina Faso","Ouagadougou"],["Burundi","Gitega"],["Cabo Verde","Praia"],["Cameroon","Yaoundé"],["Central African Republic","Bangui"],["Chad","N'Djamena"],["Comoros","Moroni"],["Republic of the Congo","Brazzaville"],["Democratic Republic of the Congo","Kinshasa"],["Côte d'Ivoire","Yamoussoukro"],["Djibouti","Djibouti"],["Egypt","Cairo"],["Equatorial Guinea","Ciudad de la Paz"],["Eritrea","Asmara"],["Eswatini","Mbabane"],["Ethiopia","Addis Ababa"],["Gabon","Libreville"],["The Gambia","Banjul"],["Ghana","Accra"],["Guinea","Conakry"],["Guinea-Bissau","Bissau"],["Kenya","Nairobi"],["Lesotho","Maseru"],["Liberia","Monrovia"],["Libya","Tripoli"],["Madagascar","Antananarivo"],["Malawi","Lilongwe"],["Mali","Bamako"],["Mauritania","Nouakchott"],["Mauritius","Port Louis"],["Morocco","Rabat"],["Mozambique","Maputo"],["Namibia","Windhoek"],["Niger","Niamey"],["Nigeria","Abuja"],["Rwanda","Kigali"],["São Tomé and Príncipe","São Tomé"],["Senegal","Dakar"],["Seychelles","Victoria"],["Sierra Leone","Freetown"],["Somalia","Mogadishu"],["South Africa","Pretoria; Cape Town; Bloemfontein"],["South Sudan","Juba"],["Sudan","Khartoum"],["Tanzania","Dodoma"],["Togo","Lomé"],["Tunisia","Tunis"],["Uganda","Kampala"],["Zambia","Lusaka"],["Zimbabwe","Harare"]
+];
+const Q=[];
+function add(cat,q,a,wrong,why){Q.push({cat,q,a,opts:[a,...wrong].sort(()=>Math.random()-.5),why})}
+add("places","Which continent is located on both sides of the Equator and is crossed by it?","Africa",["Europe","Australia","Antarctica"],"The Equator crosses the central part of Africa.");
+add("places","Which ocean lies to the west of Africa?","Atlantic Ocean",["Indian Ocean","Pacific Ocean","Arctic Ocean"],"The Atlantic Ocean is west of Africa.");
+add("places","Which ocean lies to the east and south-east of Africa?","Indian Ocean",["Atlantic Ocean","Arctic Ocean","Pacific Ocean"],"The Indian Ocean borders eastern and south-eastern Africa.");
+add("places","Which sea lies to the north of Africa?","Mediterranean Sea",["Caribbean Sea","Baltic Sea","Red Sea"],"The Mediterranean Sea lies between northern Africa and southern Europe.");
+add("places","On a world map, Africa is mostly located in which hemispheres?","Northern and Southern; Eastern and Western",["Only Northern and Western","Only Southern and Eastern","Only Northern and Eastern"],"Africa straddles the Equator and the Prime Meridian.");
+add("coasts","A country that has no direct coastline on an ocean or sea is called…","landlocked",["an island","a peninsula","a coastal country"],"Landlocked countries are surrounded by land and have no sea coast.");
+add("coasts","Which of these countries is landlocked?","Lesotho",["Mozambique","Ghana","Senegal"],"Lesotho is surrounded by South Africa.");
+add("coasts","Which of these countries has a coastline on the Indian Ocean?","Mozambique",["Mali","Niger","Chad"],"Mozambique has a long coastline along the Indian Ocean.");
+add("coasts","Which country is crossed by the Equator?","Kenya",["Morocco","South Africa","Tunisia"],"The Equator crosses Kenya, as well as several other African countries.");
+add("coasts","Which country is in North Africa?","Algeria",["Botswana","Zambia","Namibia"],"Algeria is in North Africa.");
+add("coasts","Which country is in Southern Africa?","Namibia",["Egypt","Senegal","Tunisia"],"Namibia is in the southern part of the continent.");
+add("islands","Madagascar is…","an island country",["a city in Tanzania","a landlocked country","a province of South Africa"],"Madagascar is a sovereign country on a large island off south-eastern Africa.");
+add("islands","Zanzibar is part of which country?","Tanzania",["Kenya","Madagascar","Mozambique"],"Zanzibar is an island group that forms part of Tanzania.");
+add("islands","What does a border show on a political map?","The boundary between countries or areas",["The height of a mountain","The direction of the wind","The depth of an ocean"],"Political map boundaries show where one country or area ends and another begins.");
+add("islands","Which statement about a country and an island is correct?","Madagascar is both a country and an island",["Zanzibar is an independent country","All islands are countries","Every country is an island"],"An island is land surrounded by water; Madagascar is a country located on an island.");
+add("islands","Which water body separates Madagascar from mainland Mozambique?","Mozambique Channel",["Mediterranean Sea","Gulf of Guinea","Suez Canal"],"The Mozambique Channel lies between Madagascar and Mozambique.");
+const capQuestions=capitals.map(([c,k])=>({cat:"capitals",q:"What is the capital city of "+c+"?",a:k,opts:[],why:c==="South Africa"?"South Africa has three capitals: Pretoria (executive), Cape Town (legislative) and Bloemfontein (judicial).":c==="Equatorial Guinea"?"Ciudad de la Paz was designated as the capital in 2026; the transfer of government functions is gradual.":"This is the capital commonly listed for "+c+"."}));
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+let deck=[],idx=0,points=0,answered=false,player="";
+const $=id=>document.getElementById(id);
+function start(){player=$("player").value.trim()||"Explorer";let mode=$("mode").value;let base=Q.filter(x=>mode==="all"||x.cat===mode);if(mode==="all")base=[...base,...shuffle(capQuestions).slice(0,12)];else if(mode==="capitals")base=shuffle(capQuestions);deck=shuffle(base).map(x=>({...x,opts:x.opts.length?x.opts:shuffle([x.a,...capitals.filter(y=>y[1]!==x.a).sort(()=>Math.random()-.5).slice(0,3).map(y=>y[1])])}));idx=0;points=0;$("game").classList.remove("hidden");$("result").classList.add("hidden");$("start").disabled=true;show()}
+function show(){answered=false;let q=deck[idx];$("mission").textContent=({places:"Mission 1 · Locate Africa",capitals:"Mission 2 · Capital city challenge",coasts:"Mission 3 · Coastline & regions",islands:"Mission 4 · Islands & borders"}[q.cat]||"Explorer challenge");$("score").textContent="⭐ "+points+" points";$("counter").textContent="Question "+(idx+1)+" of "+deck.length;$("bar").style.width=(idx/deck.length*100)+"%";$("question").textContent=q.q;$("feedback").textContent="";$("next").disabled=true;$("answers").innerHTML="";shuffle(q.opts).forEach(opt=>{let b=document.createElement("button");b.className="answer";b.textContent=opt;b.onclick=()=>choose(b,opt);$("answers").appendChild(b)})}
+function choose(btn,opt){if(answered)return;answered=true;let q=deck[idx];document.querySelectorAll(".answer").forEach(b=>{b.disabled=true;if(b.textContent===q.a)b.classList.add("correct")});if(opt===q.a){points+=10;$("feedback").textContent="Correct! +10 points. "+q.why}else{btn.classList.add("wrong");$("feedback").textContent="Good try. The correct answer is "+q.a+". "+q.why} $("score").textContent="⭐ "+points+" points";$("next").disabled=false}
+$("start").onclick=start;$("next").onclick=()=>{idx++;if(idx>=deck.length){$("game").classList.add("hidden");$("result").classList.remove("hidden");$("summary").textContent=player+" earned "+points+" out of "+(deck.length*10)+" points.";let pct=points/(deck.length*10);$("badge").textContent=pct>=.8?"🏆 Gold Explorer: excellent map knowledge!":pct>=.55?"🥈 Silver Explorer: good progress—revise the missed questions.":"🧭 Junior Explorer: keep practising with a political map and try again."; $("bar").style.width="100%";$("start").disabled=false}else show()};
+$("quit").onclick=()=>{$("game").classList.add("hidden");$("start").disabled=false};
+$("again").onclick=()=>{$("result").classList.add("hidden");$("start").disabled=false;start()};
+let rows="";for(let i=0;i<27;i++){let l=capitals[i],r=capitals[i+27];rows+=`<tr><td>${l[0]}</td><td>${l[1]}</td><td>${r?r[0]:""}</td><td>${r?r[1]:""}</td></tr>`} $("capTable").innerHTML=rows;
+</script>
+</body></html>
